@@ -1,0 +1,275 @@
+﻿/* =========================================================
+   VARIABILI GLOBALI
+========================================================= */
+:root {
+    --blu-app: #1E1E3C;
+    --grigio-bg: #f2f2f2;
+    --bianco: #ffffff;
+    --testo: #333;
+}
+
+/* =========================================================
+   RESET BASE
+========================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--grigio-bg);
+    color: var(--testo);
+    overflow-x: hidden;
+}
+
+/* =========================================================
+   LAYOUT GENERALE
+========================================================= */
+.layout {
+    display: flex;
+}
+
+/* =========================================================
+   SIDEBAR FISSA
+========================================================= */
+.sidebar {
+    width: 230px;
+    height: 100vh;
+    background-color: var(--blu-app);
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px;
+    z-index: 1000;
+}
+
+/* LOGO */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+    .logo img {
+        width: 80px;
+        border-radius: 50%;
+    }
+
+    .logo span {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+/* MENU */
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+    .menu a {
+        color: white;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: opacity 0.2s ease;
+    }
+
+        .menu a:hover {
+            opacity: 0.7;
+        }
+
+/* =========================================================
+   CONTENUTO PRINCIPALE
+========================================================= */
+.content {
+    margin-left: 230px;
+    width: calc(100% - 230px);
+    padding: 40px;
+}
+
+/* =========================================================
+   SEZIONI (ALLINEATE A FREESTUDIO)
+========================================================= */
+.sezione {
+    min-height: 100vh;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+    .sezione.attiva {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .sezione h1,
+    .sezione h2 {
+        margin-bottom: 20px;
+        color: var(--blu-app);
+    }
+
+    /* TESTO */
+    .sezione p {
+        margin-bottom: 1.2rem;
+        line-height: 1.6;
+    }
+
+    .sezione ul {
+        margin-top: 1rem;
+        margin-bottom: 1.5rem;
+        padding-left: 1.2rem;
+    }
+
+        .sezione ul li {
+            margin-bottom: 0.6rem;
+        }
+
+/* =========================================================
+   CARD
+========================================================= */
+.card {
+    border-radius: 8px;
+}
+
+    .card h5 {
+        margin-bottom: 0.5rem;
+    }
+
+    .card p {
+        margin-bottom: 0;
+    }
+
+/* =========================================================
+   SEPARATORI
+========================================================= */
+hr {
+    border: none;
+    height: 2px;
+    background-color: var(--blu-app);
+    box-shadow: 0 3px 8px rgba(30, 30, 60, 0.4);
+    margin: 60px 0;
+}
+
+/* =========================================================
+   BURGER MENU (MOBILE)
+========================================================= */
+.burger-btn {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 1.6rem;
+    padding: 8px 14px;
+    background-color: var(--blu-app);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    z-index: 2000;
+    cursor: pointer;
+}
+
+/* =========================================================
+   TORNA SU (VERSIONE STABILE)
+========================================================= */
+#sidePanel {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: rgba(30, 30, 60, 0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 12px;
+    border-radius: 30px;
+    z-index: 9999;
+}
+
+    #sidePanel button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background-color: var(--blu-app);
+        color: white;
+        border: none;
+        opacity: 0.15;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+        #sidePanel button:hover {
+            opacity: 0.25;
+            transform: scale(1.08);
+        }
+
+/* =========================================================
+   MODALE IMMAGINI
+========================================================= */
+.img-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+}
+
+.img-modal-content {
+    display: block;
+    margin: auto;
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+}
+
+/* =========================================================
+   RESPONSIVE MOBILE
+========================================================= */
+@media (max-width: 768px) {
+
+    .burger-btn {
+        display: block;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+        .sidebar.aperta {
+            transform: translateX(0);
+        }
+
+    .content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   EFFETTO HOVER IMMAGINI ANTEPRIMA
+   
+========================================================= */
+#preview img {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    #preview img:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }

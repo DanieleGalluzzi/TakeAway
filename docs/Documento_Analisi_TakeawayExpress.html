@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TakeawayExpress – Documento di Analisi Completo</title>
+  <style>
+    :root{
+      --bg1:#0d6efd;
+      --bg2:#6ea8fe;
+      --ink:#111;
+      --brand:#0b2a5b;
+      --brand2:#0d47a1;
+      --card:#ffffff;
+      --muted:#5b677a;
+      --line:#e8ecf3;
+      --codebg:#0b1220;
+      --codefg:#eaf0ff;
+    }
+    body{
+      margin:0;
+      font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      padding: 38px 16px;
+      color: var(--ink);
+    }
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .paper{
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.22);
+      overflow: hidden;
+    }
+    header{
+      background: linear-gradient(135deg, #0b1220, #0f1a33);
+      color: #fff;
+      padding: 28px 30px;
+    }
+    header h1{
+      margin: 0 0 6px;
+      font-size: 26px;
+      letter-spacing:.2px;
+    }
+    header p {
+    margin: 0;
+    line-height: 1.4;
+    color: #eaf2ff; 
+    opacity: 1;
+    }
+
+    main{
+      padding: 26px 30px 30px;
+    }
+    h2{
+      margin: 26px 0 10px;
+      color: var(--brand2);
+      font-size: 18px;
+    }
+    h3{
+      margin: 16px 0 8px;
+      color: var(--brand);
+      font-size: 15px;
+    }
+    p{
+      margin: 8px 0 12px;
+      line-height: 1.55;
+      color: #1a1f2b;
+    }
+    .note{
+      background:#f5f8ff;
+      border:1px solid #dfe8ff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      color:#1a1f2b;
+    }
+    .muted{color:var(--muted);}
+    pre{
+      background: var(--codebg);
+      color: var(--codefg);
+      padding: 14px 16px;
+      border-radius: 12px;
+      overflow:auto;
+      line-height:1.35;
+      font-size: 13px;
+    }
+    code{
+      background:#eef2f7;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: ui-monospace, Consolas, Menlo, monospace;
+      font-size: .95em;
+    }
+    table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 16px;
+      font-size: 14px;
+    }
+    th, td{
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+    }
+    th{
+      background: #0d6efd;
+      color: #fff;
+      text-align:left;
+    }
+    ul{
+      margin: 6px 0 14px;
+      padding-left: 18px;
+      line-height: 1.55;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 920px){
+      .grid{grid-template-columns:1fr;}
+    }
+    .card{
+      border:1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background:#fff;
+    }
+    .pill{
+      display:inline-block;
+      background:#e9f1ff;
+      border:1px solid #cfe1ff;
+      color:#0d47a1;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    .toc a{color:#0d47a1;text-decoration:none}
+    .toc a:hover{text-decoration:underline}
+    footer{
+      border-top:1px solid var(--line);
+      padding: 16px 30px;
+      color:#6a7282;
+      font-size: 13px;
+    }
+    header code {
+        background: rgba(255,255,255,0.9);
+        color: #0b2a5b;
+        font-weight: 600;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="paper">
+      <header>
+        <h1>TakeawayExpress – Documento di Analisi</h1>
+        <p>
+          Web App server-side in <b>Java</b> con <code>com.sun.net.httpserver.HttpServer</code> e database <b>MySQL</b>.
+          HTML generato dal server. Immagini servite con handler dedicato. Regola <b>POST → Redirect → GET</b>.
+          <br>
+        </p>
+      </header>
+
+      <main>
+          <div class="note">
+              <b>Scopo del documento:</b> descrivere in modo dettagliato (funzionale + tecnico) struttura, classi, database,
+              rotte HTTP, flussi, tecnologie e scelte progettuali del progetto <b>TakeawayExpress</b>, da sottoporre al docente per approvazione.
+          </div>
+
+          <h2 id="toc">Indice</h2>
+          <div class="toc">
+              <ul>
+                  <li><a href="#obiettivo">1. Introduzione e obiettivi</a></li>
+                  <li><a href="#descrizione">2. Descrizione generale dell’applicazione</a></li>
+                  <li><a href="#architettura">3. Architettura del sistema</a></li>
+                  <li><a href="#struttura">4. Struttura del progetto</a></li>
+                  <li><a href="#classi">5. Descrizione dettagliata delle classi</a></li>
+                  <li><a href="#database">6. Database: schema, tabelle e relazioni</a></li>
+                  <li><a href="#rotte">7. Rotte HTTP e parametri</a></li>
+                  <li><a href="#immagini">8. Gestione immagini statiche</a></li>
+                  <li><a href="#librerie">9. Tecnologie e librerie utilizzate</a></li>
+                  <li><a href="#variabili">10. Variabili e oggetti condivisi</a></li>
+                  <li><a href="#validazioni">11. Validazioni e gestione errori</a></li>
+                  <li><a href="#scelte">12. Scelte progettuali e motivazioni</a></li>
+              </ul>
+          </div>
+
+          <h2 id="obiettivo">1. Introduzione e obiettivi</h2>
+          <p>
+              TakeawayExpress è una web app server-side in Java che simula il processo di ordine in un locale take-away:
+              il cliente naviga un menu diviso per categorie, aggiunge prodotti a un carrello e conferma l’ordine.
+              Lo staff accede a un’area dedicata (con login) per visualizzare gli ordini e modificare lo stato di preparazione.
+          </p>
+          <ul>
+              <li><b>Obiettivo lato Cliente:</b> menu → carrello → conferma ordine → visualizzazione codice e stato.</li>
+              <li><b>Obiettivo lato Staff:</b> login → dashboard → lista ordini → dettaglio ordine → cambio stato.</li>
+          </ul>
+
+          <h2 id="descrizione">2. Descrizione generale dell’applicazione</h2>
+          <div class="grid">
+              <div class="card">
+                  <h3>Area Cliente</h3>
+                  <ul>
+                      <li><b>/</b>: mostra il menu (categorie: antipasti/panini/bevande) e permette di aggiungere prodotti.</li>
+                      <li><b>/carrello</b>: riepilogo ordine con pulsanti <b>Aggiungi altro</b> e <b>Conferma ordine</b>.</li>
+                      <li><b>/ordine</b>: conferma con codice (es. <code>T-00012</code>).</li>
+                      <li><b>/ordine/stato</b>: tracking stato ordine.</li>
+                  </ul>
+              </div>
+              <div class="card">
+                  <h3>Area Staff</h3>
+                  <ul>
+                      <li><b>/admin/login</b>: autenticazione semplice (password/identificativo).</li>
+                      <li><b>/admin</b>: dashboard con scelta: <b>Menu</b> o <b>Ordini</b>.</li>
+                      <li><b>/admin/ordini</b>: tabella ordini.</li>
+                      <li><b>/admin/ordine</b>: dettaglio ordine e cambio stato.</li>
+                  </ul>
+              </div>
+          </div>
+
+          <h2 id="architettura">3. Architettura del sistema</h2>
+          <p>
+              L’architettura segue una separazione per responsabilità:
+              <b>handler HTTP</b> (routing e request/response), <b>dominio</b> (logica business),
+              <b>database</b> (JDBC + Query centralizzate), <b>pagine</b> (HTML server-side) e <b>util</b> (helper).
+          </p>
+          <pre>Client (Browser) → HttpServer (Handlers) → (Dominio + Database) → Pagine (HTML) → Response</pre>
+          <p class="muted">
+              Nota: HTML viene prodotto dal server (nessun framework esterno). Le immagini vengono servite tramite endpoint statico <code>/img</code>.
+          </p>
+
+          <h2>4. Struttura del progetto</h2>
+
+          <h3>4.1 Package app (Avvio applicazione)</h3>
+          <table>
+              <tr><th>Classe</th><th>Tipo</th><th>Descrizione</th></tr>
+              <tr>
+                  <td><b>AvvioServer</b></td>
+                  <td>Classe main</td>
+                  <td>Punto di ingresso dell’applicazione. Avvia l’HttpServer, inizializza database, catalogo, carrello e gestore ordini e registra tutte le rotte HTTP.</td>
+              </tr>
+          </table>
+
+          <h3>4.2 Package <code>dominio</code> (modello e logica)</h3>
+          <table>
+              <tr><th>Classe</th><th>Tipo</th><th>Ruolo</th></tr>
+              <tr><td><b>Prodotto</b></td><td>Classe modello</td><td>Rappresenta un prodotto del menu (id, nome, descrizione, prezzo, categoria).</td></tr>
+              <tr><td><b>RigaCarrello</b></td><td>Classe modello</td><td>Rappresenta una riga del carrello (prodotto + quantità).</td></tr>
+              <tr><td><b>Carrello</b></td><td>Classe di servizio</td><td>Gestisce una collezione di righe e calcola il totale dell’ordine.</td></tr>
+              <tr><td><b>Ordine</b></td><td>Classe modello</td><td>Rappresenta un ordine confermato con codice, cliente, totale e stato.</td></tr>
+              <tr><td><b>StatoOrdine</b></td><td>Enum</td><td>Definisce gli stati dell’ordine: RICEVUTO, IN_PREPARAZIONE, PRONTO, CONSEGNATO.</td></tr>
+              <tr><td><b>CatalogoProdotti</b></td><td>Classe di servizio</td><td>Carica i prodotti dal database e li rende disponibili al menu.</td></tr>
+              <tr><td><b>GestoreOrdini</b></td><td>Classe business</td><td>Crea ordini dal carrello, li salva nel database e ne gestisce lo stato.</td></tr>
+          </table>
+
+          <h3>4.3 Package <code>database</code></h3>
+          <table>
+              <tr><th>Classe</th><th>Tipo</th><th>Ruolo</th></tr>
+              <tr><td><b>GestoreDatabase</b></td><td>Classe di infrastruttura</td><td>Gestisce la connessione JDBC verso MySQL.</td></tr>
+              <tr><td><b>Query</b></td><td>Classe utility</td><td>Contiene tutte le query SQL usate dall’applicazione.</td></tr>
+          </table>
+
+          <h3>4.4 Package <code>server</code> (HTTP layer)</h3>
+          <table>
+              <tr><th>Classe</th><th>Area</th><th>Funzione</th></tr>
+              <tr><td><b>MenuHandler</b></td><td>Cliente</td><td>Mostra il menu principale.</td></tr>
+              <tr><td><b>CarrelloHandler</b></td><td>Cliente</td><td>Gestisce aggiunta, modifica e visualizzazione del carrello.</td></tr>
+              <tr><td><b>OrdineHandler</b></td><td>Cliente</td><td>Conferma l’ordine e mostra lo stato.</td></tr>
+              <tr><td><b>LoginStaffHandler</b></td><td>Staff</td><td>Gestisce il login del personale.</td></tr>
+              <tr><td><b>DashboardStaffHandler</b></td><td>Staff</td><td>Pagina iniziale dopo il login.</td></tr>
+              <tr><td><b>ListaOrdiniStaffHandler</b></td><td>Staff</td><td>Mostra la tabella con tutti gli ordini.</td></tr>
+              <tr><td><b>DettaglioOrdineStaffHandler</b></td><td>Staff</td><td>Mostra il dettaglio di un ordine e consente di cambiarne lo stato.</td></tr>
+              <tr><td><b>MenuStaffHandler</b></td><td>Staff</td><td>Consente allo staff di visualizzare il menu.</td></tr>
+              <tr><td><b>ImageHandler</b></td><td>Statico</td><td>Serve le immagini dei prodotti dal filesystem.</td></tr>
+          </table>
+
+          <h3>4.5 Package <code>pagine</code> (HTML server-side)</h3>
+          <table>
+              <tr><th>Classe</th><th>Tipo</th><th>Ruolo</th></tr>
+              <tr><td><b>LayoutPagina</b></td><td>Classe base</td><td>Fornisce header e footer comuni a tutte le pagine.</td></tr>
+              <tr><td><b>PaginaMenu</b></td><td>Generatore HTML</td><td>Pagina del menu cliente.</td></tr>
+              <tr><td><b>PaginaCarrello</b></td><td>Generatore HTML</td><td>Pagina del carrello.</td></tr>
+              <tr><td><b>PaginaOrdine</b></td><td>Generatore HTML</td><td>Conferma ordine.</td></tr>
+              <tr><td><b>PaginaStatoOrdine</b></td><td>Generatore HTML</td><td>Tracking stato ordine.</td></tr>
+              <tr><td><b>PaginaLoginStaff</b></td><td>Generatore HTML</td><td>Pagina login staff.</td></tr>
+              <tr><td><b>PaginaDashboardStaff</b></td><td>Generatore HTML</td><td>Dashboard staff.</td></tr>
+              <tr><td><b>PaginaListaOrdiniStaff</b></td><td>Generatore HTML</td><td>Lista ordini.</td></tr>
+              <tr><td><b>PaginaDettaglioOrdineStaff</b></td><td>Generatore HTML</td><td>Dettaglio ordine.</td></tr>
+              <tr><td><b>PaginaMenuStaff</b></td><td>Generatore HTML</td><td>Menu per lo staff.</td></tr>
+          </table>
+
+          <h3>4.6 Package <code>util</code></h3>
+          <table>
+              <tr><th>Classe</th><th>Tipo</th><th>Ruolo</th></tr>
+              <tr><td><b>HttpUtils</b></td><td>Utility</td><td>Gestione risposte HTTP, redirect e status code.</td></tr>
+              <tr><td><b>HtmlUtils</b></td><td>Utility</td><td>Funzioni di supporto per la generazione dell’HTML.</td></tr>
+          </table>
+
+
+          <h2 id="classi">5. Descrizione dettagliata delle classi</h2>
+
+          <h3>5.1 Avvio e routing</h3>
+          <table>
+              <tr><th>Classe</th><th>Responsabilità</th><th>Note/Variabili principali</th></tr>
+              <tr>
+                  <td><b>AvvioServer</b></td>
+                  <td>Avvia <code>HttpServer</code>, registra le rotte (<code>createContext</code>), imposta porta e executor.</td>
+                  <td>
+                      <ul>
+                          <li>porta (es. 8080)</li>
+                          <li>istanze condivise: <code>CatalogoProdotti</code>, <code>Carrello</code>, <code>GestoreOrdini</code></li>
+                      </ul>
+                  </td>
+              </tr>
+          </table>
+
+          <h3>5.2 Dominio (logica business)</h3>
+          <table>
+              <tr><th>Classe</th><th>Responsabilità</th><th>Attributi principali</th></tr>
+              <tr>
+                  <td><b>Prodotto</b></td>
+                  <td>Rappresenta un prodotto del menu.</td>
+                  <td><code>id</code>, <code>nome</code>, <code>descrizione</code>, <code>prezzo</code>, <code>categoria</code></td>
+              </tr>
+              <tr>
+                  <td><b>RigaCarrello</b></td>
+                  <td>Rappresenta una riga del carrello (prodotto + quantità) e calcola subtotale.</td>
+                  <td><code>Prodotto prodotto</code>, <code>int quantita</code></td>
+              </tr>
+              <tr>
+                  <td><b>Carrello</b></td>
+                  <td>Contiene le righe selezionate dal cliente. Permette aggiunta/aggiornamento/rimozione e calcolo totale.</td>
+                  <td>
+                      <ul>
+                          <li>Struttura consigliata: <code>Map&lt;String, RigaCarrello&gt;</code> (chiave = id prodotto)</li>
+                          <li>Metodi: <code>aggiungi()</code>, <code>aggiorna()</code>, <code>svuota()</code>, <code>getTotale()</code>, <code>getTotaleQuantita()</code></li>
+                      </ul>
+                  </td>
+              </tr>
+              <tr>
+                  <td><b>Ordine</b></td>
+                  <td>Rappresenta un ordine confermato.</td>
+                  <td>
+                      <code>codice</code>, <code>nomeCliente</code>, <code>contatto</code>, <code>note</code>, <code>totale</code>,
+                      <code>StatoOrdine</code>, date
+                  </td>
+              </tr>
+              <tr>
+                  <td><b>StatoOrdine</b></td>
+                  <td>Enum degli stati ordine e regole di avanzamento.</td>
+                  <td><code>RICEVUTO</code> → <code>IN_PREPARAZIONE</code> → <code>PRONTO</code> → <code>CONSEGNATO</code></td>
+              </tr>
+              <tr>
+                  <td><b>CatalogoProdotti</b></td>
+                  <td>Carica e fornisce la lista prodotti (dal DB). Supporta filtri per categoria.</td>
+                  <td><code>List&lt;Prodotto&gt; prodotti</code> + metodi <code>getPerCategoria()</code></td>
+              </tr>
+              <tr>
+                  <td><b>GestoreOrdini</b></td>
+                  <td>Servizio principale: crea ordine dal carrello, salva su DB, recupera ordini, aggiorna stato.</td>
+                  <td>
+                      <ul>
+                          <li>Dipende da <code>GestoreDatabase</code></li>
+                          <li>Metodi: <code>creaOrdineDaCarrello()</code>, <code>getOrdini()</code>, <code>getDettaglio()</code>, <code>cambiaStato()</code></li>
+                      </ul>
+                  </td>
+              </tr>
+          </table>
+
+          <h3>5.3 Database (JDBC + Query)</h3>
+          <table>
+              <tr><th>Classe</th><th>Responsabilità</th><th>Note</th></tr>
+              <tr>
+                  <td><b>GestoreDatabase</b></td>
+                  <td>Gestione connessione MySQL (URL, utente, password). Espone metodi per ottenere <code>Connection</code>.</td>
+                  <td>Uso di <code>PreparedStatement</code> e chiusura risorse (try-with-resources).</td>
+              </tr>
+              <tr>
+                  <td><b>Query</b></td>
+                  <td>Centralizza tutte le query SQL (prodotti, ordini, righe ordine).</td>
+                  <td>Evita query sparse nel progetto, migliora manutenzione e coerenza.</td>
+              </tr>
+          </table>
+
+          <h3>5.4 Server (Handlers HTTP)</h3>
+          <table>
+              <tr><th>Handler</th><th>Rotte</th><th>Responsabilità</th></tr>
+              <tr><td><b>MenuHandler</b></td><td>GET <code>/</code></td><td>Carica prodotti dal catalogo e richiama <code>PaginaMenu</code>.</td></tr>
+              <tr><td><b>CarrelloHandler</b></td><td>GET <code>/carrello</code> + POST <code>/carrello/aggiungi</code>, <code>/carrello/aggiorna</code>, <code>/carrello/svuota</code></td><td>Gestisce modifiche al carrello e applica PRG (redirect).</td></tr>
+              <tr><td><b>OrdineHandler</b></td><td>POST <code>/checkout/conferma</code>, GET <code>/ordine</code>, GET <code>/ordine/stato</code></td><td>Crea ordine su DB, mostra conferma e tracking.</td></tr>
+              <tr><td><b>LoginStaffHandler</b></td><td>GET/POST <code>/admin/login</code></td><td>Gestisce login staff (controllo credenziali).</td></tr>
+              <tr><td><b>DashboardStaffHandler</b></td><td>GET <code>/admin</code></td><td>Mostra scelta iniziale staff: Menu / Ordini.</td></tr>
+              <tr><td><b>ListaOrdiniStaffHandler</b></td><td>GET <code>/admin/ordini</code></td><td>Visualizza tabella ordini, filtri opzionali.</td></tr>
+              <tr><td><b>DettaglioOrdineStaffHandler</b></td><td>GET <code>/admin/ordine</code> + POST <code>/admin/ordine/stato</code></td><td>Dettaglio ordine e cambio stato con validazione.</td></tr>
+              <tr><td><b>MenuStaffHandler</b></td><td>GET <code>/admin/menu</code></td><td>Mostra menu allo staff (consultazione).</td></tr>
+              <tr><td><b>ImageHandler</b></td><td>GET <code>/img/*</code></td><td>Serve file statici (PNG/JPG) dalla cartella <code>./img</code>.</td></tr>
+          </table>
+
+          <h3>5.5 Pagine (HTML server-side)</h3>
+          <p>
+              Le classi in <code>pagine/</code> si occupano solo della generazione HTML.
+              Gli handler chiamano le pagine passando i dati (lista prodotti, carrello, ordini).
+              <br><span class="muted">Regola: niente HTML dentro gli handler, per separare logica HTTP e presentazione.</span>
+          </p>
+          <table>
+              <tr><th>Classe</th><th>Responsabilità</th></tr>
+              <tr><td><b>LayoutPagina</b></td><td>Header comune (nome locale, link carrello con contatore, link staff) + footer.</td></tr>
+              <tr><td><b>PaginaMenu</b></td><td>Elenco prodotti per categoria con form per aggiungere al carrello.</td></tr>
+              <tr><td><b>PaginaCarrello</b></td><td>Riepilogo righe, totale, pulsanti <b>Aggiungi altro</b> e <b>Conferma ordine</b>.</td></tr>
+              <tr><td><b>PaginaOrdine</b></td><td>Conferma ordine (codice ordine, riepilogo).</td></tr>
+              <tr><td><b>PaginaStatoOrdine</b></td><td>Tracking stato ordine (stato attuale, data aggiornamento).</td></tr>
+              <tr><td><b>PaginaLoginStaff</b></td><td>Form login staff.</td></tr>
+              <tr><td><b>PaginaDashboardStaff</b></td><td>Schermata iniziale staff: pulsanti Menu / Ordini.</td></tr>
+              <tr><td><b>PaginaListaOrdiniStaff</b></td><td>Tabella ordini con link al dettaglio.</td></tr>
+              <tr><td><b>PaginaDettaglioOrdineStaff</b></td><td>Dettaglio ordine + pulsanti cambio stato (in base allo stato attuale).</td></tr>
+              <tr><td><b>PaginaMenuStaff</b></td><td>Visualizzazione menu per consultazione staff.</td></tr>
+          </table>
+
+          <h2 id="database">6. Database: schema, tabelle e relazioni</h2>
+          <p>
+              Il database viene creato e gestito in MySQL Workbench. Lo schema include:
+              <b>prodotto</b> (menu), <b>ordine</b> (testata) e <b>riga_ordine</b> (dettaglio).
+          </p>
+
+          <h3>6.1 Tabella <code>prodotto</code></h3>
+          <table>
+              <tr><th>Campo</th><th>Tipo</th><th>Vincoli</th><th>Descrizione</th></tr>
+              <tr><td>id</td><td>VARCHAR(20)</td><td>PK, NOT NULL</td><td>ID prodotto (usato anche per immagine: <code>/img/&lt;id&gt;.png</code>).</td></tr>
+              <tr><td>nome</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Nome prodotto.</td></tr>
+              <tr><td>descrizione</td><td>TEXT</td><td>NULL</td><td>Descrizione breve.</td></tr>
+              <tr><td>prezzo</td><td>DECIMAL(10,2)</td><td>NOT NULL, CHECK &gt;= 0</td><td>Prezzo di vendita.</td></tr>
+              <tr><td>categoria</td><td>VARCHAR(50)</td><td>NOT NULL</td><td>Categoria (Antipasto/Panino/Bevanda).</td></tr>
+          </table>
+
+          <h3>6.2 Tabella <code>ordine</code></h3>
+          <table>
+              <tr><th>Campo</th><th>Tipo</th><th>Vincoli</th><th>Descrizione</th></tr>
+              <tr><td>id</td><td>INT</td><td>PK, AUTO_INCREMENT</td><td>Identificativo interno.</td></tr>
+              <tr><td>codice</td><td>VARCHAR(20)</td><td>UNIQUE, NOT NULL</td><td>Codice pubblico ordine (es. <code>T-00012</code>).</td></tr>
+              <tr><td>nome_cliente</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Nome cliente.</td></tr>
+              <tr><td>contatto</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Telefono/email.</td></tr>
+              <tr><td>note</td><td>TEXT</td><td>NULL</td><td>Note opzionali.</td></tr>
+              <tr><td>totale</td><td>DECIMAL(10,2)</td><td>NOT NULL, CHECK &gt;= 0</td><td>Totale ordine.</td></tr>
+              <tr><td>stato</td><td>VARCHAR(30)</td><td>NOT NULL</td><td>Stato ordine (coerente con <code>StatoOrdine</code>).</td></tr>
+              <tr><td>data_creazione</td><td>DATETIME</td><td>NOT NULL</td><td>Timestamp creazione.</td></tr>
+              <tr><td>data_aggiornamento</td><td>DATETIME</td><td>NULL</td><td>Ultimo aggiornamento stato (tracking).</td></tr>
+          </table>
+
+          <h3>6.3 Tabella <code>riga_ordine</code></h3>
+          <table>
+              <tr><th>Campo</th><th>Tipo</th><th>Vincoli</th><th>Descrizione</th></tr>
+              <tr><td>id</td><td>INT</td><td>PK, AUTO_INCREMENT</td><td>ID riga.</td></tr>
+              <tr><td>ordine_id</td><td>INT</td><td>FK → ordine(id), NOT NULL</td><td>Collegamento alla testata ordine.</td></tr>
+              <tr><td>prodotto_id</td><td>VARCHAR(20)</td><td>FK → prodotto(id), NOT NULL</td><td>Prodotto ordinato.</td></tr>
+              <tr><td>quantita</td><td>INT</td><td>NOT NULL, CHECK &gt; 0</td><td>Numero pezzi.</td></tr>
+              <tr><td>prezzo_unitario</td><td>DECIMAL(10,2)</td><td>NOT NULL, CHECK &gt;= 0</td><td>Prezzo al momento dell’ordine (storico).</td></tr>
+          </table>
+
+          <h3>6.4 Relazioni</h3>
+          <ul>
+              <li><b>ordine (1) → (N) riga_ordine</b>: un ordine contiene più prodotti.</li>
+              <li><b>prodotto (1) → (N) riga_ordine</b>: lo stesso prodotto può comparire in ordini diversi.</li>
+          </ul>
+
+          <h2 id="rotte">7. Rotte HTTP e parametri</h2>
+          <p>
+              Le rotte sono progettate per rispettare la regola:
+              <b>tutte le modifiche (scritture) avvengono in POST</b> e poi si effettua un redirect verso una GET (PRG).
+          </p>
+
+          <h3>7.1 Rotte Cliente</h3>
+          <table>
+              <tr><th>Metodo</th><th>URL</th><th>Parametri</th><th>Descrizione</th><th>Esito</th></tr>
+              <tr><td>GET</td><td><code>/</code></td><td>-</td><td>Menu prodotti (con filtri categoria lato UI).</td><td>200 HTML</td></tr>
+              <tr><td>POST</td><td><code>/carrello/aggiungi</code></td><td><code>prodotto</code>, <code>quantita</code></td><td>Aggiunge/aggiorna una riga nel carrello.</td><td>302 → <code>/carrello</code></td></tr>
+              <tr><td>GET</td><td><code>/carrello</code></td><td>-</td><td>Riepilogo carrello.</td><td>200 HTML</td></tr>
+              <tr><td>POST</td><td><code>/carrello/aggiorna</code></td><td><code>q_<built-in function id></code>…</td><td>Aggiorna quantità per ogni riga.</td><td>302 → <code>/carrello</code></td></tr>
+              <tr><td>POST</td><td><code>/carrello/svuota</code></td><td>-</td><td>Svuota carrello.</td><td>302 → <code>/carrello</code> o <code>/</code></td></tr>
+              <tr><td>POST</td><td><code>/checkout/conferma</code></td><td><code>nome</code>, <code>contatto</code>, <code>note</code>(opz)</td><td>Crea ordine su DB (testata + righe), svuota carrello.</td><td>302 → <code>/ordine?codice=...</code></td></tr>
+              <tr><td>GET</td><td><code>/ordine</code></td><td><code>codice</code></td><td>Conferma ordine e riepilogo.</td><td>200 HTML</td></tr>
+              <tr><td>GET</td><td><code>/ordine/stato</code></td><td><code>codice</code>(opz)</td><td>Tracking stato ordine.</td><td>200 HTML</td></tr>
+          </table>
+
+          <h3>7.2 Rotte Staff</h3>
+          <table>
+              <tr><th>Metodo</th><th>URL</th><th>Parametri</th><th>Descrizione</th><th>Esito</th></tr>
+              <tr><td>GET</td><td><code>/admin/login</code></td><td>-</td><td>Pagina login staff.</td><td>200 HTML</td></tr>
+              <tr><td>POST</td><td><code>/admin/login</code></td><td><code>identificativo</code>, <code>password</code></td><td>Verifica credenziali.</td><td>302 → <code>/admin</code> (o errore)</td></tr>
+              <tr><td>GET</td><td><code>/admin</code></td><td>-</td><td>Dashboard staff (Menu / Ordini).</td><td>200 HTML</td></tr>
+              <tr><td>GET</td><td><code>/admin/ordini</code></td><td><code>stato</code>(opz)</td><td>Tabella ordini, filtro opzionale.</td><td>200 HTML</td></tr>
+              <tr><td>GET</td><td><code>/admin/ordine</code></td><td><code>codice</code></td><td>Dettaglio ordine e pulsanti cambio stato.</td><td>200 HTML</td></tr>
+              <tr><td>POST</td><td><code>/admin/ordine/stato</code></td><td><code>codice</code>, <code>stato</code></td><td>Applica transizione stato se valida.</td><td>302 → <code>/admin/ordine?codice=...</code></td></tr>
+              <tr><td>GET</td><td><code>/admin/menu</code></td><td>-</td><td>Visualizzazione menu per consultazione staff.</td><td>200 HTML</td></tr>
+          </table>
+
+          <h2 id="immagini">8. Gestione immagini statiche</h2>
+          <p>
+              Le immagini non vengono salvate nel database. Vengono gestite come risorse statiche nella cartella <code>./img</code>
+              e servite tramite <code>ImageHandler</code> sulla rotta <code>/img</code>.
+          </p>
+          <ul>
+              <li>Convenzione: per un prodotto con <code>id=CBO</code> l’immagine è <code>/img/CBO.png</code>.</li>
+              <li>Il browser richiede l’immagine e il server risponde con <code>Content-Type</code> corretto (png/jpg).</li>
+          </ul>
+
+          <h2 id="librerie">9. Tecnologie e librerie utilizzate</h2>
+          <table>
+              <tr><th>Componente</th><th>Libreria/Package</th><th>Utilizzo</th></tr>
+              <tr><td>HTTP Server</td><td><code>com.sun.net.httpserver</code></td><td>Routing e gestione richieste.</td></tr>
+              <tr><td>JDBC</td><td><code>java.sql</code></td><td>Connessione MySQL, query con PreparedStatement.</td></tr>
+              <tr><td>File system</td><td><code>java.nio.file</code></td><td>Lettura file immagini e content-type.</td></tr>
+              <tr><td>Time</td><td><code>java.time</code></td><td>Gestione date/ore (opzionale lato Java; lato DB si usa DATETIME).</td></tr>
+          </table>
+
+          <h2 id="variabili">10. Variabili e oggetti condivisi</h2>
+          <p>
+              Per semplicità didattica (prima versione), il progetto mantiene alcune istanze condivise create in <code>AvvioServer</code> e passate ai handler:
+          </p>
+          <ul>
+              <li><code>GestoreDatabase db</code>: connessione/creazione <code>Connection</code>.</li>
+              <li><code>CatalogoProdotti catalogo</code>: prodotti disponibili, caricati da DB.</li>
+              <li><code>Carrello carrello</code>: carrello corrente (nota: senza sessioni avanzate, è condiviso; per demo è accettabile).</li>
+              <li><code>GestoreOrdini gestoreOrdini</code>: crea ordini e cambia stati.</li>
+          </ul>
+
+          <h2 id="validazioni">11. Validazioni e gestione errori</h2>
+          <h3>11.1 Validazioni principali</h3>
+          <ul>
+              <li><b>Quantità</b>: deve essere intero &gt; 0 (o &gt;=0 in aggiornamento).</li>
+              <li><b>Prodotto</b>: l’ID prodotto deve esistere nel catalogo.</li>
+              <li><b>Checkout</b>: nome e contatto obbligatori.</li>
+              <li><b>Codice ordine</b>: su pagine ordine/staff deve esistere, altrimenti errore 404 o pagina “Ordine non trovato”.</li>
+              <li><b>Stato ordine</b>: transizione valida senza salti (es. RICEVUTO → PRONTO non consentito).</li>
+          </ul>
+
+          <h3>11.2 Error handling</h3>
+          <ul>
+              <li>Parametri mancanti: risposta con pagina errore chiara (400) o messaggio in pagina.</li>
+              <li>Risorsa non trovata: 404 (es. immagine assente, ordine inesistente).</li>
+              <li>Metodo non consentito: 405 (se una rotta riceve un metodo non previsto).</li>
+              <li>Eccezioni DB: log server-side e pagina errore generica per utente.</li>
+          </ul>
+
+          <h2 id="scelte">12. Scelte progettuali e motivazioni</h2>
+          <ul>
+              <li><b>Separazione Handler / Pagine</b>: gli handler gestiscono solo HTTP; le pagine generano HTML → maggiore manutenibilità.</li>
+              <li><b>Query centralizzate</b>: tutte le SQL in <code>Query</code> → coerenza e facilità di modifica.</li>
+              <li><b>PRG (POST→Redirect→GET)</b>: evita doppio invio form con refresh e migliora UX.</li>
+              <li><b>Immagini fuori dal DB</b>: semplifica il database e rende le risorse gestibili come file statici.</li>
+              <li><b>Stati ordine come enum</b>: riduce errori e rende esplicite le transizioni consentite.</li>
+          </ul>
+
+          <div class="note">
+              <b>Deliverable dimostrativi (demo):</b>
+              <ul>
+                  <li>Catalogo con almeno 6 prodotti in 3 categorie.</li>
+                  <li>Creazione di almeno 2 ordini da area cliente.</li>
+                  <li>Gestione e avanzamento stato ordini da area staff (almeno 2 cambi stato).</li>
+              </ul>
+          </div>
+      </main>
+
+      <footer>
+        Documento di analisi – TakeawayExpress 
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

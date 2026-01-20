@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang='it'>
+<head>
+<meta charset='utf-8'>
+<title>Takeaway Express — Documento Unificato</title>
+<style>
+body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;background:#0b1220;color:#eaf0ff;line-height:1.6}
+header{padding:24px;border-bottom:1px solid rgba(255,255,255,.1);background:linear-gradient(135deg, rgba(110,168,254,.18), rgba(0,0,0,0))}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+h1,h2{color:#fff}
+section{margin-bottom:32px}
+code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+    <header>
+        <div class='wrap'>
+            <h1>Takeaway Express</h1>
+        </div>
+    </header>
+
+    <div class='wrap'>
+        <section>
+            <h2>Parte 1 — Spiegazione discorsiva</h2>
+            <p>Takeaway Express è una web app server-side in Java che consente a clienti di effettuare ordini e allo staff di gestirli. Il cliente naviga il menu, aggiunge prodotti al carrello e conferma l’ordine tramite POST. Lo staff, dopo login, visualizza gli ordini e aggiorna il loro stato.</p>
+            <p>Il carrello è mantenuto in memoria, mentre gli ordini vengono salvati in MySQL nelle tabelle ordine e riga_ordine.</p>
+        </section>
+
+        <section>
+            <h2>Parte 2 — Architettura tecnica</h2>
+            <p>Il progetto è suddiviso in quattro package principali:</p>
+            <ul>
+                <li><b>app</b> — AvvioServer e configurazione rotte</li>
+                <li><b>server</b> — Handler HTTP (MenuHandler, CarrelloHandler, OrdineHandler, LoginStaffHandler, DashboardStaffHandler)</li>
+                <li><b>dominio</b> — Logica applicativa (Carrello, Ordine, StatoOrdine, GestoreOrdini, CatalogoProdotti)</li>
+                <li><b>database</b> — JDBC e Query SQL</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Parte 3 — Flusso HTTP</h2>
+            <ul>
+                <li><code>GET /</code> → Menu</li>
+                <li><code>GET /carrello?add=ID</code> → aggiunta prodotto</li>
+                <li><code>POST /ordine</code> → salvataggio ordine</li>
+                <li><code>/staff/login</code> → login staff</li>
+                <li><code>/staff/dashboard</code> → gestione ordini</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Parte 4 — Database</h2>
+            <p>Le tabelle principali sono:</p>
+            <ul>
+                <li><b>prodotto</b> — contiene i prodotti del menu</li>
+                <li><b>ordine</b> — contiene la testata degli ordini</li>
+                <li><b>riga_ordine</b> — contiene i prodotti di ciascun ordine</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Parte 5 — Sicurezza Staff</h2>
+            <p>L’accesso alla dashboard è protetto tramite la classe <code>SessioneStaff</code>. Solo chi effettua login può visualizzare e modificare gli ordini.</p>
+        </section>
+
+
+        <section>
+            <h2>Parte 6 — Spiegazione classe per classe</h2>
+
+            <p>
+                Questa sezione descrive nel dettaglio il ruolo di ogni classe del progetto
+                e come collabora con le altre.
+            </p>
+
+            <h3>Package <code>app</code></h3>
+            <ul>
+                <li>
+                    <b>AvvioServer</b><br>
+                    È il punto di ingresso dell’applicazione. Contiene il metodo <code>main</code>.
+                    Crea l’HttpServer, inizializza gli oggetti condivisi (Carrello, CatalogoProdotti,
+                    GestoreOrdini) e registra tutte le rotte collegandole ai rispettivi Handler.
+                    In pratica è il “collante” di tutta l’applicazione.
+                </li>
+            </ul>
+
+            <h3>Package <code>server</code> (livello Web)</h3>
+            <ul>
+                <li>
+                    <b>MenuHandler</b><br>
+                    Gestisce la rotta <code>GET /</code>. Recupera i prodotti dal database tramite
+                    <code>CatalogoProdotti</code> e genera la pagina HTML del menu.
+                    Ogni prodotto ha un link che punta a <code>/carrello?add=ID</code>.
+                </li>
+
+                <li>
+                    <b>CarrelloHandler</b><br>
+                    Gestisce la rotta <code>GET /carrello</code>.
+                    Se riceve un parametro <code>add=ID</code>, cerca il prodotto e lo aggiunge al carrello,
+                    poi fa un redirect al menu.
+                    Se non ci sono parametri, mostra la pagina del carrello con righe, quantità e totale.
+                </li>
+
+                <li>
+                    <b>OrdineHandler</b><br>
+                    Gestisce <code>POST /ordine</code>.
+                    Legge i dati del form (nome, contatto, note), prende il contenuto del carrello e
+                    chiama <code>GestoreOrdini</code> per salvare l’ordine nel database.
+                    Dopo l’inserimento mostra la pagina di conferma.
+                </li>
+
+                <li>
+                    <b>LoginStaffHandler</b><br>
+                    Gestisce il login dello staff.
+                    Mostra il form (GET) e verifica le credenziali (POST) usando <code>SessioneStaff</code>.
+                    Se il login è corretto, reindirizza alla dashboard.
+                </li>
+
+                <li>
+                    <b>DashboardStaffHandler</b><br>
+                    Gestisce l’area riservata allo staff (<code>/staff/dashboard</code>).
+                    Prima di tutto controlla se l’utente è loggato.
+                    Se sì, mostra la tabella degli ordini e permette di cambiare lo stato
+                    (RICEVUTO, PRONTO, ecc.).
+                </li>
+
+                <li>
+                    <b>ImageHandler</b><br>
+                    Serve le immagini statiche (logo, foto prodotti) leggendo i file dal filesystem
+                    e inviandoli al browser con il corretto Content-Type.
+                </li>
+            </ul>
+
+            <h3>Package <code>dominio</code> (logica applicativa)</h3>
+            <ul>
+                <li>
+                    <b>Prodotto</b><br>
+                    È una classe POJO che rappresenta un prodotto del menu
+                    (id, nome, prezzo, categoria).
+                </li>
+
+                <li>
+                    <b>RigaCarrello</b><br>
+                    Rappresenta una riga del carrello: un prodotto + una quantità.
+                    Calcola il totale della riga (prezzo × quantità).
+                </li>
+
+                <li>
+                    <b>Carrello</b><br>
+                    Contiene una lista di <code>RigaCarrello</code>.
+                    Serve a memorizzare temporaneamente i prodotti scelti dal cliente
+                    prima che l’ordine venga confermato.
+                </li>
+
+                <li>
+                    <b>Ordine</b><br>
+                    Rappresenta un ordine: dati del cliente, totale, stato e data.
+                    È la “testata” dell’ordine nel database.
+                </li>
+
+                <li>
+                    <b>StatoOrdine</b> (enum)<br>
+                    Definisce i possibili stati di un ordine (RICEVUTO, IN_PREPARAZIONE, PRONTO, CONSEGNATO).
+                    Serve per evitare valori non validi.
+                </li>
+
+                <li>
+                    <b>CatalogoProdotti</b><br>
+                    Classe che si occupa di leggere i prodotti dal database
+                    ed esporli come lista di oggetti <code>Prodotto</code>.
+                </li>
+
+                <li>
+                    <b>GestoreOrdini</b><br>
+                    Contiene la logica per creare ordini, salvarli nel database,
+                    leggere tutti gli ordini e aggiornare il loro stato.
+                    È il cuore della parte “gestionale”.
+                </li>               
+            </ul>
+
+            <h3>Package <code>database</code></h3>
+            <ul>
+                <li>
+                    <b>GestoreDatabase</b><br>
+                    Fornisce la connessione JDBC a MySQL.
+                    Tutte le classi che parlano col database usano questa connessione.
+                </li>
+
+                <li>
+                    <b>Query</b><br>
+                    Contiene tutte le query SQL come costanti.
+                    In questo modo il codice Java rimane pulito e le query sono centralizzate.
+                </li>
+            </ul>
+        </section>
+
+    </div>
+
+    
+
+
+</body>
+</html>
